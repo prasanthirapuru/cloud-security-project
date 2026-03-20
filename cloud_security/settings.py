@@ -2,10 +2,14 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = False
-ALLOWED_HOSTS = ['.onrender.com']
 
+# ── Security ──────────────────────────────────────────────────────────────────
+# render.yaml sets DJANGO_SECRET_KEY via generateValue: true
+SECRET_KEY    = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-production')
+DEBUG         = False
+ALLOWED_HOSTS = ['.onrender.com', '127.0.0.1', 'localhost']
+
+# ── Apps ──────────────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -21,7 +25,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # must be second
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,19 +69,29 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE     = 'Asia/Kolkata'
 USE_I18N = True
-USE_TZ = True
+USE_TZ   = True
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# ── Static files ──────────────────────────────────────────────────────────────
+STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Only add the source dir when it actually exists — prevents collectstatic crash
+# on Render where the folder may not be committed to the repo.
+_static_src = BASE_DIR / 'static'
+STATICFILES_DIRS = [_static_src] if _static_src.exists() else []
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
+# ── Media files ───────────────────────────────────────────────────────────────
+MEDIA_URL  = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_URL = '/users/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+# ── Auth redirects ────────────────────────────────────────────────────────────
+DEFAULT_AUTO_FIELD  = 'django.db.models.BigAutoField'
+LOGIN_URL           = '/users/login/'
+LOGIN_REDIRECT_URL  = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# ── Upload size limits ────────────────────────────────────────────────────────
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
