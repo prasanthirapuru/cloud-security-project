@@ -3,13 +3,15 @@ services:
     name: cloud-security-web
     env: python
     branch: main
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput
     startCommand: gunicorn cloud_security.wsgi:application --bind 0.0.0.0:$PORT
-    envVars:
-      - key: SECRET_KEY
-        fromDatabase: false
-        value: "django-insecure-cloud-security-hybrid-dl-2026-key-change-in-production"
-      - key: DEBUG
-        fromDatabase: false
-        value: "False"
     plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
