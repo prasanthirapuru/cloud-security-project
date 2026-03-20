@@ -3,7 +3,7 @@ services:
     name: cloud-security-web
     env: python
     branch: main
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: gunicorn cloud_security.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: SECRET_KEY
