@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: cloud-security-web
+    env: python
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn cloud_security.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        fromDatabase: false
+        value: "your-secret-key"
+      - key: DEBUG
+        fromDatabase: false
+        value: "False"
+    plan: free
